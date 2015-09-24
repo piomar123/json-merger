@@ -8,31 +8,44 @@ module.exports = function(jsondiff, jsondiffpatch){
 	String.prototype.__defineGetter__('preColor',   function(){ return colors.yellow(this); });
 	String.prototype.__defineGetter__('postColor',  function(){ return colors.green (this); });
 
+	var readFileOrEmpty = function(file){
+		try {
+			return fs.readFileSync(file, 'utf8');			
+		} catch(err) {
+			// yummy
+			if(err.code === 'ENOENT'){
+				console.log(('File ' + file + ' not found - using empty').gray);
+			} else {
+				throw err;
+			}
+		}
+		return "";
+	}
+	
 	var out = {};
 
 	out.runDiff = function(preFile, postFile){
-		var preData   = fs.readFileSync(preFile,  'utf8');
-		var postData  = fs.readFileSync(postFile, 'utf8');
-		var pre =  jsonParser.parseString(preData);
+		var preData  = readFileOrEmpty(preFile);
+		var postData = readFileOrEmpty(postFile);
+		var pre  = jsonParser.parseString(preData);
 		var post = jsonParser.parseString(postData);
 		var preToPost = jsondiffpatch.diff(pre, post);
         if(preToPost === undefined){
-            console.log('>>> No differences <<<'.green);
+            console.log('>>> No differences <<<'.gray);
         } else {
     		var output = jsondiff.formatters.console.format(preToPost);
 	    	console.log(output);            
         }
-
 	};
-
+	
 	out.runMerge = function(baseFile, localFile, remoteFile){
 		console.log(('Base: '   + baseFile)  .baseColor);
 		console.log(('Local: '  + localFile) .localColor);
 		console.log(('Remote: ' + remoteFile).remoteColor);
 
-		var baseData   = fs.readFileSync(baseFile,   'utf8');
-		var localData  = fs.readFileSync(localFile,  'utf8');
-		var remoteData = fs.readFileSync(remoteFile, 'utf8');
+		var baseData   = readFileOrEmpty(baseFile);
+		var localData  = readFileOrEmpty(localFile);
+		var remoteData = readFileOrEmpty(remoteFile);
 
 		// console.log(baseData.baseColor);
 		// console.log(localData.localColor);
