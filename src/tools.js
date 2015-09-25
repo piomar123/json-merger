@@ -12,15 +12,14 @@ module.exports = function(jsondiff, jsondiffpatch){
 		try {
 			return fs.readFileSync(file, 'utf8');			
 		} catch(err) {
-			// yummy
 			if(err.code === 'ENOENT'){
 				console.log(('File ' + file + ' not found - using empty').gray);
 			} else {
 				throw err;
 			}
 		}
-		return "";
-	}
+		return '';
+	};
 	
 	var out = {};
 
